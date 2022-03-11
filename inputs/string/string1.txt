@@ -1,0 +1,1 @@
+string name<randWord> = "<randword><randword> <randword> <randword> <randword> <randword>"  

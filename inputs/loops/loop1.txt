@@ -1,0 +1,4 @@
+for (<randWord> = 10; <randWord> != 0; <randWord>--) {  //for loop example
+<string>
+<string comp>         
+}

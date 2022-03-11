@@ -1,0 +1,3 @@
+function junkLoop<randWord>() public view returns (uint256) {
+<loop>
+}
