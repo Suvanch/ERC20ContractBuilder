@@ -1,7 +1,7 @@
 {
-"name":"Johsssssn", 
-"symbol":"JON", 
-"supply": 500000000,
+"name":"TokenName", 
+"symbol":"TN", 
+"supply": 100000000,
 "user_tax": 5,
 "owner_tax": 0,  
 "distribution": [

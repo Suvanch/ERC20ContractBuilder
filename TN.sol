@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 
+pragma solidity ^0.8.0;
 
 
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -9,7 +10,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 import "hardhat/console.sol";
 
-contract JON is ERC20, Ownable {
+contract TN is ERC20, Ownable {
     using SafeMath for uint256;
 
     // Default percent to charge on each transfer (Note: 1e18 == 100%)
@@ -54,8 +55,8 @@ contract JON is ERC20, Ownable {
     constructor(
 		address MarketingWallet,
 		address DeveloperWallet
-    ) ERC20("Johsssssn", "JON") {
-        _mint(_msgSender(), 500000000);
+    ) ERC20("TokenName", "TN") {
+        _mint(_msgSender(), 100000000);
 
         _transactionFeePercent = 5e16; // 5%
         _transactionFeePercentOwner = 0e16; // 0%
@@ -79,7 +80,7 @@ contract JON is ERC20, Ownable {
         hasPendingFee[Functions.FEE_OWNER] = false;
         hasPendingFee[Functions.FEE_DIST] = false;
 
-        //add JON wallets to whitelistAddresses
+        //add TN wallets to whitelistAddresses
         addWhitelistAddress(_msgSender());
         addWhitelistAddress(0x000000000000000000000000000000000000dEaD);
 		addWhitelistAddress(_MarketingWallet);
@@ -195,7 +196,7 @@ contract JON is ERC20, Ownable {
         return (
 			_MarketingWalletFeePercent,
 			_DeveloperWalletFeePercent,
-			_BurnWalletFeePercent
+			_BurnFeePercent
         );
     }
 
@@ -221,7 +222,7 @@ contract JON is ERC20, Ownable {
         return (
 			_pendingMarketingWalletFeePercent,
 			_pendingDeveloperWalletFeePercent,
-			_pendingBurnWalletFeePercent
+			_pendingBurnFeePercent
         );
     }
 
@@ -248,11 +249,11 @@ contract JON is ERC20, Ownable {
     function proposeTransactionFee(uint256 fee) public onlyOwner {
         require(
             fee >= 0 && fee <= 99e16,
-            "JON: transaction fee should be >= 0 and <= 99%"
+            "TN: transaction fee should be >= 0 and <= 99%"
         );
         require(
             !hasPendingFee[Functions.FEE],
-            "JON: There is a pending fee change already."
+            "TN: There is a pending fee change already."
         );
         require(
             currentTimelocks[Functions.FEE] == 0,
@@ -269,11 +270,11 @@ contract JON is ERC20, Ownable {
     function proposeTransactionFeeOwner(uint256 fee) public onlyOwner {
         require(
             fee >= 0 && fee <= 99e16,
-            "JON: sell transaction fee should be >= 0 and <= 99%"
+            "TN: sell transaction fee should be >= 0 and <= 99%"
         );
         require(
             !hasPendingFee[Functions.FEE_OWNER],
-            "JON: There is a pending owner fee change already."
+            "TN: There is a pending owner fee change already."
         );
         require(
             currentTimelocks[Functions.FEE_OWNER] == 0,
@@ -296,19 +297,19 @@ contract JON is ERC20, Ownable {
 				MarketingWalletFeePercent
 				.add(DeveloperWalletFeePercent)
 				.add(BurnWalletFeePercent) == 1e18,
-            "JON: The sum of distribuition should be 100%"
+            "TN: The sum of distribuition should be 100%"
         );
         require(
             !hasPendingFee[Functions.FEE_DIST],
-            "JON: There is a pending dsitribution fee change already."
+            "TN: There is a pending dsitribution fee change already."
         );
         require(
             currentTimelocks[Functions.FEE_DIST] == 0,
             "Current Timelock is already initialized with a value"
         );
-_pendingMarketingPercent = MarketingPercent;
-_pendingDeveloperPercent = DeveloperPercent;
-_pendingBurnPercent = BurnPercent;
+			_pendingMarketingWalletFeePercent = _MarketingWalletFeePercent;
+			_pendingDeveloperWalletFeePercent = _DeveloperWalletFeePercent;
+			_pendingBurnFeePercent = _BurnFeePercent;
 
         // intialize timelock conditions
         currentTimelocks[Functions.FEE_DIST] = block.timestamp + _TIMELOCK;
@@ -348,7 +349,7 @@ _pendingBurnPercent = BurnPercent;
         ) {
 			_MarketingWalletFeePercent = _pendingMarketingWalletFeePercent;
 			_DeveloperWalletFeePercent = _pendingDeveloperWalletFeePercent;
-			_BurnWalletFeePercent = _pendingBurnFeePercent;
+			_BurnFeePercent = _pendingBurnFeePercent;
 
             // reset timelock conditions
             currentTimelocks[Functions.FEE_DIST] = 0;

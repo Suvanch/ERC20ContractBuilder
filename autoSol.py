@@ -168,6 +168,7 @@ def burn(filedata):
 def addDistrbution(filedata,contract):
     
     #setting golval variables for walet addresses
+    proposeFeeDistroSet = ""
     globalOwnerWalletAddressVariable = "" #address public _developerWallet;
     globalOwnerWalletPercentVariable = "" #uint256 public _developerWalletFeePercent;
     globalPendingOwnerPercentVariable = "" #uint256 public _pendingDeveloperWalletFeePercent;
@@ -198,12 +199,9 @@ def addDistrbution(filedata,contract):
         
         calcFeeDistroInputVariables += "\t\t\tuint256 to"+x.name+",\n"
         transferWfeesOwnerAmountVariable += "\t\t\t\tuint256 to"+x.name+",\n"
-        getCurrentFeeDistroReturns += "\t\t\t_"+x.name+"WalletFeePercent,\n"
         getCurrentFeeDistroNumReturns += "\t\t\tuint256,\n"
         getPendingFeeNumReturns += "\t\t\tuint256,\n"
-        getPendingFeeReturn += "\t\t\t_pending" + x.name + "WalletFeePercent,\n"
         proposeFeeDistroInput += "\t\t\tuint256 "+x.name+"WalletFeePercent,\n" 
-        proposeFeeDistroSet += "_pending"+x.name+"Percent = "+x.name+"Percent;\n"           
 
         if x.name == first:
             proposeFeeDistroRequire += "\t\t\t\t"+x.name+"WalletFeePercent\n"
@@ -215,7 +213,11 @@ def addDistrbution(filedata,contract):
             globalOwnerWalletPercentVariable += "\tuint256 public _"+ x.name+"FeePercent;\n"
             globalPendingOwnerPercentVariable += "\tuint256 public _pending"+x.name+"FeePercent;\n"
             constructorSetWalletPercent += "\t\t_"+x.name+"FeePercent = "+str(x.percent)+"e16; //"+str(x.percent)+"%\n"
-            setFeeDistroSet += "\t\t\t_"+x.name+"WalletFeePercent = _pending"+x.name+"FeePercent;\n"
+            setFeeDistroSet += "\t\t\t_"+x.name+"FeePercent = _pending"+x.name+"FeePercent;\n"
+            getCurrentFeeDistroReturns += "\t\t\t_"+x.name+"FeePercent,\n"
+            getPendingFeeReturn += "\t\t\t_pending" + x.name + "FeePercent,\n"
+            proposeFeeDistroSet += "\t\t\t_pending"+x.name+"FeePercent = _"+x.name+"FeePercent;\n"           
+
                
         else:
             calcFeeDistroCalc += "\t\tto"+x.name+" = amount.mul(_"+x.name+"WalletFeePercent).div(1e18);\n"
@@ -229,6 +231,9 @@ def addDistrbution(filedata,contract):
             constructorAddOwnerWhitelist += "\t\taddWhitelistAddress(_"+x.name+"Wallet);\n"
             transferWfeesCall += "\t\t\t_transfer(sender, _"+x.name+"Wallet, to"+x.name+");\n"
             setFeeDistroSet += "\t\t\t_"+x.name+"WalletFeePercent = _pending"+x.name+"WalletFeePercent;\n"
+            getCurrentFeeDistroReturns += "\t\t\t_"+x.name+"WalletFeePercent,\n"
+            getPendingFeeReturn += "\t\t\t_pending" + x.name + "WalletFeePercent,\n"
+            proposeFeeDistroSet += "\t\t\t_pending"+x.name+"WalletFeePercent = _"+x.name+"WalletFeePercent;\n"           
             #add this for scam<scam>
             setWalletAddressFunction += "\tfunction set"+x.name+"WalletAddress(address "+x.name+"Address) public onlyOwner {\n\trequire(\n\t\t"+x.name+"Address != address(0),\n\t\t\"<contract symbol>: "+x.name+"Address cannot be zero address\"\n\t);\n\t_"+x.name+"Wallet = "+x.name+"Address;\n}\n"
 
