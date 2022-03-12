@@ -102,7 +102,7 @@ def readJson():
 def advancedContract(contract):
     #Creates new contract based on old contract
     newFileName = contract.symbol +".sol"
-    with open(fullFileExtenstion+'advancedBaseContract.txt','r') as firstfile, open(fullFileExtenstion+newFileName,'a') as secondfile:
+    with open(fullFileExtenstion+'advancedBaseContract.txt','r') as firstfile, open(fullFileExtenstion+"contracts\\"+newFileName,'a') as secondfile:
         for line in firstfile:
              secondfile.write(line)
 
@@ -156,7 +156,7 @@ def advancedContract(contract):
 def basicContract(contract):
     #Creates new contract based on old contract
     newFileName = contract.symbol +".sol"
-    with open(fullFileExtenstion+'basicBaseContract.txt','r') as firstfile, open(fullFileExtenstion+newFileName,'a') as secondfile:
+    with open(fullFileExtenstion+'basicBaseContract.txt','r') as firstfile, open(fullFileExtenstion+"contracts\\"+newFileName,'a') as secondfile:
         for line in firstfile:
              secondfile.write(line)
 

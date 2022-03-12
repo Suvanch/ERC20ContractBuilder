@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 import "hardhat/console.sol";
 
-contract AC is ERC20, Ownable {
+contract <contract symbol> is ERC20, Ownable {
     using SafeMath for uint256;
 
     // Default percent to charge on each transfer (Note: 1e18 == 100%)
@@ -30,47 +30,33 @@ contract AC is ERC20, Ownable {
 
     
     // Fee Beneficiaries
-	address public _MarketingWallet;
-	address public _DeveloperWallet;
-
+<globalOwnerWalletAddressVariable>
     // Percent distribution among wallets and burn
     // Note: The sum of these four values should be 100% (1e18)
-	uint256 public _MarketingWalletFeePercent;
-	uint256 public _DeveloperWalletFeePercent;
-	uint256 public _BurnFeePercent;
-
+<globalOwnerWalletPercentVariable>
 
     // Proposal Variables
     uint256 private _pendingTransactionFeePercent;
     uint256 private _pendingTransactionFeePercentOwner;
 
 
-	uint256 public _pendingMarketingWalletFeePercent;
-	uint256 public _pendingDeveloperWalletFeePercent;
-	uint256 public _pendingBurnFeePercent;
-
+<globalPendingOwnerPercentVariable>
 
     uint256 private _feeUpdateTimestamp;
 
     constructor(
-		address MarketingWallet,
-		address DeveloperWallet
-    ) ERC20("AdvancedContract", "AC") {
-        _mint(_msgSender(), 100000000);
+<constructorOwnerAddressVariable>
+    ) ERC20("<contract name>", "<contract symbol>") {
+        _mint(_msgSender(), <contract supply>);
 
-        _transactionFeePercent = 5e16; // 5%
-        _transactionFeePercentOwner = 0e16; // 0%
-
-
-		_MarketingWallet = MarketingWallet;
-		_DeveloperWallet = DeveloperWallet;
+        _transactionFeePercent = <user_tax>e16; // <user_tax>%
+        _transactionFeePercentOwner = <owner_tax>e16; // <owner_tax>%
 
 
-		_MarketingWalletFeePercent = 50e16; //50%
-		_DeveloperWalletFeePercent = 40e16; //40%
-		_BurnFeePercent = 10e16; //10%
+<constructorSetGlobal>
 
-
+<constructorSetWalletPercent>
+<constructorBurnPercet>
         // initialize timelock conditions
         currentTimelocks[Functions.FEE] = 0;
         currentTimelocks[Functions.FEE_OWNER] = 0;
@@ -80,12 +66,10 @@ contract AC is ERC20, Ownable {
         hasPendingFee[Functions.FEE_OWNER] = false;
         hasPendingFee[Functions.FEE_DIST] = false;
 
-        //add AC wallets to whitelistAddresses
+        //add <contract symbol> wallets to whitelistAddresses
         addWhitelistAddress(_msgSender());
         addWhitelistAddress(0x000000000000000000000000000000000000dEaD);
-		addWhitelistAddress(_MarketingWallet);
-		addWhitelistAddress(_DeveloperWallet);
-
+<constructorAddOwnerWhitelist>
     }
 
     // TODO: Mitigate Contract owner from front-run transfers with fee changes
@@ -138,14 +122,11 @@ contract AC is ERC20, Ownable {
             uint256 amountAfterFee = amount.sub(feeToCharge);
 
             (
-				uint256 toMarketing,
-				uint256 toDeveloper,
-				uint256 toBurn
+<transferWfeesOwnerAmountVariable>
             ) = calculateFeeDistribution(feeToCharge);
 
             _transfer(sender, 0x000000000000000000000000000000000000dEaD, toBurn);
-			_transfer(sender, _MarketingWallet, toMarketing);
-			_transfer(sender, _DeveloperWallet, toDeveloper);
+<transferWfeesCall>
             _transfer(sender, recipient, amountAfterFee);
     }
 
@@ -155,14 +136,10 @@ contract AC is ERC20, Ownable {
         private
         view
         returns (
-			uint256 toMarketing,
-			uint256 toDeveloper,
-			uint256 toBurn
+<calcFeeDistroInputVariables>
         )
     {
-		toMarketing = amount.mul(_MarketingWalletFeePercent).div(1e18);
-		toDeveloper = amount.mul(_DeveloperWalletFeePercent).div(1e18);
-		toBurn = amount.sub(toMarketing).sub(toDeveloper);
+<calcFeeDistroCalc><calcFeeDistroBurn>
 
     }
 
@@ -188,15 +165,11 @@ contract AC is ERC20, Ownable {
         public
         view
         returns (
-			uint256,
-			uint256,
-			uint256
+<getCurrentFeeDistroNumReturns>
         )
     {
         return (
-			_MarketingWalletFeePercent,
-			_DeveloperWalletFeePercent,
-			_BurnFeePercent
+<getCurrentFeeDistroReturns>
         );
     }
 
@@ -214,15 +187,11 @@ contract AC is ERC20, Ownable {
         public
         view
         returns (
-			uint256,
-			uint256,
-			uint256
+<getPendingFeeNumReturns>
         )
     {
         return (
-			_pendingMarketingWalletFeePercent,
-			_pendingDeveloperWalletFeePercent,
-			_pendingBurnFeePercent
+<getPendingFeeReturn>
         );
     }
 
@@ -249,11 +218,11 @@ contract AC is ERC20, Ownable {
     function proposeTransactionFee(uint256 fee) public onlyOwner {
         require(
             fee >= 0 && fee <= 99e16,
-            "AC: transaction fee should be >= 0 and <= 99%"
+            "<contract symbol>: transaction fee should be >= 0 and <= 99%"
         );
         require(
             !hasPendingFee[Functions.FEE],
-            "AC: There is a pending fee change already."
+            "<contract symbol>: There is a pending fee change already."
         );
         require(
             currentTimelocks[Functions.FEE] == 0,
@@ -270,11 +239,11 @@ contract AC is ERC20, Ownable {
     function proposeTransactionFeeOwner(uint256 fee) public onlyOwner {
         require(
             fee >= 0 && fee <= 99e16,
-            "AC: sell transaction fee should be >= 0 and <= 99%"
+            "<contract symbol>: sell transaction fee should be >= 0 and <= 99%"
         );
         require(
             !hasPendingFee[Functions.FEE_OWNER],
-            "AC: There is a pending owner fee change already."
+            "<contract symbol>: There is a pending owner fee change already."
         );
         require(
             currentTimelocks[Functions.FEE_OWNER] == 0,
@@ -289,28 +258,21 @@ contract AC is ERC20, Ownable {
     }
 
     function proposeFeeDistribution(
-			uint256 MarketingWalletFeePercent,
-			uint256 DeveloperWalletFeePercent,
-			uint256 BurnWalletFeePercent
+<proposeFeeDistroInput>
     ) public onlyOwner {
         require(
-				MarketingWalletFeePercent
-				.add(DeveloperWalletFeePercent)
-				.add(BurnWalletFeePercent) == 1e18,
-            "AC: The sum of distribuition should be 100%"
+<proposeFeeDistroRequire> == 1e18,
+            "<contract symbol>: The sum of distribuition should be 100%"
         );
         require(
             !hasPendingFee[Functions.FEE_DIST],
-            "AC: There is a pending dsitribution fee change already."
+            "<contract symbol>: There is a pending dsitribution fee change already."
         );
         require(
             currentTimelocks[Functions.FEE_DIST] == 0,
             "Current Timelock is already initialized with a value"
         );
-			_pendingMarketingWalletFeePercent = _MarketingWalletFeePercent;
-			_pendingDeveloperWalletFeePercent = _DeveloperWalletFeePercent;
-			_pendingBurnFeePercent = _BurnFeePercent;
-
+<proposeFeeDistroSet>
         // intialize timelock conditions
         currentTimelocks[Functions.FEE_DIST] = block.timestamp + _TIMELOCK;
         hasPendingFee[Functions.FEE_DIST] = true;
@@ -347,31 +309,14 @@ contract AC is ERC20, Ownable {
             hasPendingFee[Functions.FEE_DIST] == true &&
             currentTimelocks[Functions.FEE_DIST] <= block.timestamp
         ) {
-			_MarketingWalletFeePercent = _pendingMarketingWalletFeePercent;
-			_DeveloperWalletFeePercent = _pendingDeveloperWalletFeePercent;
-			_BurnFeePercent = _pendingBurnFeePercent;
-
+<setFeeDistroSet>
             // reset timelock conditions
             currentTimelocks[Functions.FEE_DIST] = 0;
             hasPendingFee[Functions.FEE_DIST] = false;
         }
     }
 
-	function setMarketingWalletAddress(address MarketingAddress) public onlyOwner {
-	require(
-		MarketingAddress != address(0),
-		"<contract symbol>: MarketingAddress cannot be zero address"
-	);
-	_MarketingWallet = MarketingAddress;
-}
-	function setDeveloperWalletAddress(address DeveloperAddress) public onlyOwner {
-	require(
-		DeveloperAddress != address(0),
-		"<contract symbol>: DeveloperAddress cannot be zero address"
-	);
-	_DeveloperWallet = DeveloperAddress;
-}
-
+<setWalletAddressFunction>
     function addWhitelistAddress(address companyAddress) public onlyOwner {
         whitelistAddresses[companyAddress] = true;
     }
@@ -384,7 +329,7 @@ contract AC is ERC20, Ownable {
         whitelistAddresses[companyAddress] = false;
     }
 
-
-
-
+<mint>
+<burn>
+<custom code>
 }
