@@ -1,7 +1,9 @@
 {
-"name":"TokenName", 
-"symbol":"TN", 
+"name":"AdvancedContract", 
+"symbol":"AC", 
 "supply": 100000000,
+"advanced": true,
+"tax": true,
 "user_tax": 5,
 "owner_tax": 0,  
 "distribution": [
@@ -20,13 +22,12 @@
         "percent":10,
         "address":"<Wallet Address>"
     }
-  ],
-
-  "mintable": false,
-  "burnable": false,
-  "random_coments":false,
-  "random_code":false,
-  "scam_fo_sho":false,
-  "custom_code":false,
-  "code":""
+],
+"mintable": false,
+"burnable": false,
+"random_coments":false,
+"random_code":false,
+"scam_fo_sho":false,
+"custom_code":false,
+"code":""
 }

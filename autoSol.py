@@ -48,15 +48,17 @@ class contractData:
     name = ""
     symbol = "" 
     supply = 0
+    advanced = False
+    tax = False
     user_tax = 0
     owner_tax = 0
     mintable = False
     burnable = False
     random_coments = False
     random_code = False
-    scam_fo_sho: False
-    custom_code: False
-    code: ""
+    scam_fo_sho = False
+    custom_code = False
+    code = ""
     distribution = []
     # thislist.append("orange")
     def __init__(self, name, symbol, supply):
@@ -72,6 +74,8 @@ def readJson():
     data = json.load(file)
 
     contract = contractData(data['name'],data['symbol'],data['supply'])
+    contract.advanced = data['advanced']
+    contract.tax = data['tax']
     contract.user_tax = data['user_tax']
     contract.owner_tax = data['owner_tax']
     contract.mintable = data['mintable']
@@ -95,12 +99,10 @@ def readJson():
     return contract
 
 
-
-def createContract(contract):
-
+def advancedContract(contract):
     #Creates new contract based on old contract
     newFileName = contract.symbol +".sol"
-    with open(fullFileExtenstion+'baseContract.txt','r') as firstfile, open(fullFileExtenstion+newFileName,'a') as secondfile:
+    with open(fullFileExtenstion+'advancedBaseContract.txt','r') as firstfile, open(fullFileExtenstion+newFileName,'a') as secondfile:
         for line in firstfile:
              secondfile.write(line)
 
@@ -120,7 +122,7 @@ def createContract(contract):
     if count > 0:
         filedata = addDistrbution(filedata,contract)
     else:
-        filedata = filedata.replace('<mint>', "")
+        filedata = removeDistrbution(filedata,contract)
 
     if contract.mintable:
         filedata = mint(filedata)
@@ -150,6 +152,35 @@ def createContract(contract):
     
     with open(fullFileExtenstion+newFileName, 'w') as file:
         file.write(filedata)
+
+def basicContract(contract):
+    #Creates new contract based on old contract
+    newFileName = contract.symbol +".sol"
+    with open(fullFileExtenstion+'basicBaseContract.txt','r') as firstfile, open(fullFileExtenstion+newFileName,'a') as secondfile:
+        for line in firstfile:
+             secondfile.write(line)
+
+
+    #Editing Contract
+    with open(fullFileExtenstion+newFileName, 'r') as file :
+        filedata = file.read()
+
+    filedata = filedata.replace('<contract name>', contract.name)
+    filedata = filedata.replace('<contract symbol>', contract.symbol)
+    filedata = filedata.replace('<contract supply>', str(contract.supply))
+
+    
+    with open(fullFileExtenstion+newFileName, 'w') as file:
+        file.write(filedata)
+
+
+def createContract(contract):
+    if contract.advanced:
+        advancedContract(contract)
+    else:
+        basicContract(contract)
+
+    
 
 def mint(filedata):
     function = """
@@ -299,6 +330,7 @@ def removeDistrbution(filedata,contract):
     filedata = filedata.replace('<proposeFeeDistroSet>', "")
     filedata = filedata.replace('<setFeeDistroSet>', "")
     filedata = filedata.replace('<setWalletAddressFunction>', "")
+    return filedata
 
 #THIS DOESENT DO ANYTHING NO SCAM
 def scam_fo_sho(filedata,contract):

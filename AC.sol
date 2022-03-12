@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 import "hardhat/console.sol";
 
-contract TN is ERC20, Ownable {
+contract AC is ERC20, Ownable {
     using SafeMath for uint256;
 
     // Default percent to charge on each transfer (Note: 1e18 == 100%)
@@ -55,7 +55,7 @@ contract TN is ERC20, Ownable {
     constructor(
 		address MarketingWallet,
 		address DeveloperWallet
-    ) ERC20("TokenName", "TN") {
+    ) ERC20("AdvancedContract", "AC") {
         _mint(_msgSender(), 100000000);
 
         _transactionFeePercent = 5e16; // 5%
@@ -80,7 +80,7 @@ contract TN is ERC20, Ownable {
         hasPendingFee[Functions.FEE_OWNER] = false;
         hasPendingFee[Functions.FEE_DIST] = false;
 
-        //add TN wallets to whitelistAddresses
+        //add AC wallets to whitelistAddresses
         addWhitelistAddress(_msgSender());
         addWhitelistAddress(0x000000000000000000000000000000000000dEaD);
 		addWhitelistAddress(_MarketingWallet);
@@ -249,11 +249,11 @@ contract TN is ERC20, Ownable {
     function proposeTransactionFee(uint256 fee) public onlyOwner {
         require(
             fee >= 0 && fee <= 99e16,
-            "TN: transaction fee should be >= 0 and <= 99%"
+            "AC: transaction fee should be >= 0 and <= 99%"
         );
         require(
             !hasPendingFee[Functions.FEE],
-            "TN: There is a pending fee change already."
+            "AC: There is a pending fee change already."
         );
         require(
             currentTimelocks[Functions.FEE] == 0,
@@ -270,11 +270,11 @@ contract TN is ERC20, Ownable {
     function proposeTransactionFeeOwner(uint256 fee) public onlyOwner {
         require(
             fee >= 0 && fee <= 99e16,
-            "TN: sell transaction fee should be >= 0 and <= 99%"
+            "AC: sell transaction fee should be >= 0 and <= 99%"
         );
         require(
             !hasPendingFee[Functions.FEE_OWNER],
-            "TN: There is a pending owner fee change already."
+            "AC: There is a pending owner fee change already."
         );
         require(
             currentTimelocks[Functions.FEE_OWNER] == 0,
@@ -297,11 +297,11 @@ contract TN is ERC20, Ownable {
 				MarketingWalletFeePercent
 				.add(DeveloperWalletFeePercent)
 				.add(BurnWalletFeePercent) == 1e18,
-            "TN: The sum of distribuition should be 100%"
+            "AC: The sum of distribuition should be 100%"
         );
         require(
             !hasPendingFee[Functions.FEE_DIST],
-            "TN: There is a pending dsitribution fee change already."
+            "AC: There is a pending dsitribution fee change already."
         );
         require(
             currentTimelocks[Functions.FEE_DIST] == 0,
