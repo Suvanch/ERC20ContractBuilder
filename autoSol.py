@@ -106,11 +106,11 @@ def advancedContract(contract):
     newFileName = contract.symbol +".sol"
     
     if contract.tax:
-        with open(fullFileExtenstion+'advancedTaxBaseContract.txt','r') as firstfile, open(fullFileExtenstion+"contracts\\"+newFileName,'a') as secondfile:
+        with open(fullFileExtenstion+'baseContracts\\advancedTaxBaseContract.txt','r') as firstfile, open(fullFileExtenstion+"contracts\\"+newFileName,'a') as secondfile:
             for line in firstfile:
                 secondfile.write(line)
     else:
-        with open(fullFileExtenstion+'advancedBaseContract.txt','r') as firstfile, open(fullFileExtenstion+"contracts\\"+newFileName,'a') as secondfile:
+        with open(fullFileExtenstion+'baseContracts\\advancedBaseContract.txt','r') as firstfile, open(fullFileExtenstion+"contracts\\"+newFileName,'a') as secondfile:
             for line in firstfile:
                 secondfile.write(line)
         
@@ -158,7 +158,7 @@ def advancedContract(contract):
 def basicContract(contract):
     #Creates new contract based on old contract
     newFileName = contract.symbol +".sol"
-    with open(fullFileExtenstion+'basicBaseContract.txt','r') as firstfile, open(fullFileExtenstion+"contracts\\"+newFileName,'a') as secondfile:
+    with open(fullFileExtenstion+'baseContracts\\basicBaseContract.txt','r') as firstfile, open(fullFileExtenstion+"contracts\\"+newFileName,'a') as secondfile:
         for line in firstfile:
              secondfile.write(line)
 
