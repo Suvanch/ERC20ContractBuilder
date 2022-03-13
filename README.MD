@@ -28,4 +28,15 @@ I plan on adding random code, random comments, timelocks, and whitelists. I will
 
 I plan on automating the deployment process into the Dapp
 
+Test Contract Builds
+AC - advanced contract without any advanced fetures
+ACA - advanced contract with all advanced fetures
+ATC - Advanced Tax Contract
+ATCA - Advanced Tax contract with all advanced fetures
+ATNDC - Advanced Tax contract without any distribution
+BC - Basic contract
+
+
+-I found the add coustom functions doeset work.
+
 _There are going to be lots of errors and bugs so if you find anything please let me know and I'll be sure to fix it. I have even tested all the edge cases so if you decide to not add something, type something odd or remove something the contract will come back with errors._

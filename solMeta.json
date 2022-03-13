@@ -1,9 +1,9 @@
 {
-"name":"AdvancedContract", 
-"symbol":"AC", 
+"name":"AdvancedContractAll", 
+"symbol":"ACA", 
 "supply": 100000000,
 "advanced": true,
-"tax": true,
+"tax": false,
 "user_tax": 5,
 "owner_tax": 0,  
 "distribution": [
@@ -23,11 +23,11 @@
         "address":"<Wallet Address>"
     }
 ],
-"mintable": false,
-"burnable": false,
+"mintable": true,
+"burnable": true,
 "random_coments":false,
 "random_code":false,
 "scam_fo_sho":false,
-"custom_code":false,
-"code":""
+"custom_code":true,
+"code":"function lol(address companyAddress) public onlyOwner {\nrequire(\nwhitelistAddresses[companyAddress] == true,\n\"The company address you're trying to remove does not exist or already has been removed\"\n);\nwhitelistAddresses[companyAddress] = false;\n}"
 }

@@ -66,9 +66,6 @@ class contractData:
         self.symbol = symbol
         self.supply = supply
 
-
-
-
 def readJson():
     file = open(fullFileExtenstion+'solMeta.json')
     data = json.load(file)
@@ -98,31 +95,33 @@ def readJson():
     file.close()
     return contract
 
+def createContract(contract):
+    if contract.advanced:
+        advancedContract(contract)
+    else:
+        basicContract(contract) 
 
 def advancedContract(contract):
     #Creates new contract based on old contract
     newFileName = contract.symbol +".sol"
-    with open(fullFileExtenstion+'advancedBaseContract.txt','r') as firstfile, open(fullFileExtenstion+"contracts\\"+newFileName,'a') as secondfile:
-        for line in firstfile:
-             secondfile.write(line)
-
+    
+    if contract.tax:
+        with open(fullFileExtenstion+'advancedTaxBaseContract.txt','r') as firstfile, open(fullFileExtenstion+"contracts\\"+newFileName,'a') as secondfile:
+            for line in firstfile:
+                secondfile.write(line)
+    else:
+        with open(fullFileExtenstion+'advancedBaseContract.txt','r') as firstfile, open(fullFileExtenstion+"contracts\\"+newFileName,'a') as secondfile:
+            for line in firstfile:
+                secondfile.write(line)
+        
 
     #Editing Contract
-    with open(fullFileExtenstion+newFileName, 'r') as file :
+    with open(fullFileExtenstion+"contracts\\"+newFileName, 'r') as file :
         filedata = file.read()
 
     filedata = filedata.replace('<contract name>', contract.name)
     filedata = filedata.replace('<contract symbol>', contract.symbol)
     filedata = filedata.replace('<contract supply>', str(contract.supply))
-    filedata = filedata.replace('<user_tax>', str(contract.user_tax))
-    filedata = filedata.replace('<owner_tax>', str(contract.owner_tax))
-
-    #if there is a coustom distribution
-    count = len(contract.distribution)
-    if count > 0:
-        filedata = addDistrbution(filedata,contract)
-    else:
-        filedata = removeDistrbution(filedata,contract)
 
     if contract.mintable:
         filedata = mint(filedata)
@@ -140,9 +139,12 @@ def advancedContract(contract):
         #filedata = filedata.replace('<>', "")
 
     if contract.custom_code:
-        filedata = scam_fo_sho(filedata)
+        filedata = coustom_code(filedata,contract)
     else:
         filedata = filedata.replace('<custom code>', "")
+
+    if contract.tax:
+        filedata = addTax(filedata,contract)
 
 
 
@@ -150,7 +152,7 @@ def advancedContract(contract):
         #filedata = randCode(filedata)
 
     
-    with open(fullFileExtenstion+newFileName, 'w') as file:
+    with open(fullFileExtenstion+"contracts\\"+newFileName, 'w') as file:
         file.write(filedata)
 
 def basicContract(contract):
@@ -162,7 +164,7 @@ def basicContract(contract):
 
 
     #Editing Contract
-    with open(fullFileExtenstion+newFileName, 'r') as file :
+    with open(fullFileExtenstion+"contracts\\"+newFileName, 'r') as file :
         filedata = file.read()
 
     filedata = filedata.replace('<contract name>', contract.name)
@@ -170,17 +172,10 @@ def basicContract(contract):
     filedata = filedata.replace('<contract supply>', str(contract.supply))
 
     
-    with open(fullFileExtenstion+newFileName, 'w') as file:
+    with open(fullFileExtenstion+"contracts\\"+newFileName, 'w') as file:
         file.write(filedata)
 
 
-def createContract(contract):
-    if contract.advanced:
-        advancedContract(contract)
-    else:
-        basicContract(contract)
-
-    
 
 def mint(filedata):
     function = """
@@ -188,6 +183,7 @@ def mint(filedata):
         \t\t_mint(account, amount);}
         \n"""
     filedata = filedata.replace('<mint>', function)
+    return filedata
 
 def burn(filedata):
     function = """
@@ -195,6 +191,7 @@ def burn(filedata):
         \t\t_burn(account, amount);}
         \n"""
     filedata = filedata.replace('<burn>', function)
+    return filedata
 
 def addDistrbution(filedata,contract):
     
@@ -340,9 +337,30 @@ def scam_fo_sho(filedata,contract):
     filedata = filedata.replace('<scam info>', str) #add<scam> to ln320 but you also have to change some other stuff for it to work 
     return filedata
 
-
 def coustom_code(filedata,contract):
     filedata = filedata.replace('<custom code>', contract.code)
+    return filedata
+
+def addTax(filedata,contract):
+    if contract.user_tax > 0:
+        filedata = filedata.replace('<user_tax>', "\t\t_transactionFeePercent = "+str(contract.user_tax)+"e16; // "+str(contract.user_tax)+"%")
+    else:
+        filedata = filedata.replace('<user_tax>',"")
+    if contract.owner_tax > 0:
+        filedata = filedata.replace('<owner_tax>', "\t\t_transactionFeePercentOwner = "+str(contract.owner_tax)+"e16; // "+str(contract.owner_tax)+"%")
+    else:
+        filedata = filedata.replace('<owner_tax>',"")
+
+    #if there is a coustom distribution
+    count = len(contract.distribution)
+    if count > 0:
+        filedata = addDistrbution(filedata,contract)
+    else:
+        print("You need to send the tax somewhere. Add distribution and try again. Im not building this contract")
+        filedata = ""
+        #filedata = removeDistrbution(filedata,contract)
+
+
     return filedata
 
 contract = readJson()
