@@ -45,13 +45,16 @@ class distribution:
         self.name = name
 
 class contractData:
+    type = 0
     name = ""
     symbol = "" 
     supply = 0
     advanced = False
     tax = False
+    taxBurn = False
     user_tax = 0
     owner_tax = 0
+    max_tax = 0
     mintable = False
     burnable = False
     random_coments = False
@@ -71,10 +74,12 @@ def readJson():
     data = json.load(file)
 
     contract = contractData(data['name'],data['symbol'],data['supply'])
+    contract.type = data['type']
     contract.advanced = data['advanced']
     contract.tax = data['tax']
     contract.user_tax = data['user_tax']
     contract.owner_tax = data['owner_tax']
+    contract.max_tax = data['max_tax']
     contract.mintable = data['mintable']
     contract.burnable = data['burnable']
     contract.random_coments = data['random_coments']
@@ -88,6 +93,8 @@ def readJson():
         newDist = distribution(i['name'],i['percent'],i['address'])
         contract.distribution.append(newDist) 
         sumOfDistro += i['percent']
+        if i["name"] == "Burn":
+            contract.taxBurn = True
 
     if sumOfDistro > 100:
         print("The sum of all your dstribution go over a 100%. \nThis will cause the contract to take a higher tax than expected and might cause errors when deploying.")
@@ -122,7 +129,13 @@ def advancedContract(contract):
     filedata = filedata.replace('<contract name>', contract.name)
     filedata = filedata.replace('<contract symbol>', contract.symbol)
     filedata = filedata.replace('<contract supply>', str(contract.supply))
+    filedata = filedata.replace('<maxTax>', str(contract.max_tax))
+    if contract.type == 0:
+        filedata = filedata.replace('<type>', "ERC20")
+    elif contract.type == 1:
+        filedata = filedata.replace('<type>', "BEP20")
 
+    
     if contract.mintable:
         filedata = mint(filedata)
     else:
@@ -194,7 +207,6 @@ def burn(filedata):
     return filedata
 
 def addDistrbution(filedata,contract):
-    
     #setting golval variables for walet addresses
     proposeFeeDistroSet = ""
     globalOwnerWalletAddressVariable = "" #address public _developerWallet;
@@ -213,23 +225,27 @@ def addDistrbution(filedata,contract):
     getPendingFeeReturn = "" #_pendingDeveloperWalletFeePercent,
     calcFeeDistroInputVariables = "" #uint256 toDeveloper,
     calcFeeDistroCalc = "" #toDeveloper = amount.mul(_developerWalletFeePercent).div(1e18);
-    calcFeeDistroBurn = "\t\ttoBurn = amount" #toBurn = amount.sub(toDeveloper).sub(toLand).sub(toMarketing).sub(toLiquidity);
+    calcFeeDistroBurn = "" #toBurn = amount.sub(toDeveloper).sub(toLand).sub(toMarketing).sub(toLiquidity);
     proposeFeeDistroInput = "" #uint256 developerWalletFeePercent,
     proposeFeeDistroRequire = "" #.add(developerWalletFeePercent)
     proposeFeeDistroSet = "" 
     setFeeDistroSet = "" #_developerWalletFeePercent = _pendingDeveloperWalletFeePercent;
-    setWalletAddressFunction = ""  
+    setWalletAddressFunction = "" 
     
-
+    
+    
+    if contract.taxBurn:
+        calcFeeDistroBurn += "\t\ttoBurn = amount"
+    
     count = len(contract.distribution)
     first = contract.distribution[0].name
     for x in contract.distribution:
         
-        calcFeeDistroInputVariables += "\t\t\tuint256 to"+x.name+",\n"
         transferWfeesOwnerAmountVariable += "\t\t\t\tuint256 to"+x.name+",\n"
         getCurrentFeeDistroNumReturns += "\t\t\tuint256,\n"
         getPendingFeeNumReturns += "\t\t\tuint256,\n"
         proposeFeeDistroInput += "\t\t\tuint256 "+x.name+"WalletFeePercent,\n" 
+        calcFeeDistroInputVariables += "\t\t\tuint256 to"+x.name+",\n"
 
         if x.name == first:
             proposeFeeDistroRequire += "\t\t\t\t"+x.name+"WalletFeePercent\n"
@@ -237,19 +253,23 @@ def addDistrbution(filedata,contract):
             proposeFeeDistroRequire += "\t\t\t\t.add("+x.name+"WalletFeePercent)\n"
 
 
-        if x.name == "Burn" or x.name == "BURNABLE":
+        if x.name == "Burn":
             globalOwnerWalletPercentVariable += "\tuint256 public _"+ x.name+"FeePercent;\n"
             globalPendingOwnerPercentVariable += "\tuint256 public _pending"+x.name+"FeePercent;\n"
             constructorSetWalletPercent += "\t\t_"+x.name+"FeePercent = "+str(x.percent)+"e16; //"+str(x.percent)+"%\n"
             setFeeDistroSet += "\t\t\t_"+x.name+"FeePercent = _pending"+x.name+"FeePercent;\n"
             getCurrentFeeDistroReturns += "\t\t\t_"+x.name+"FeePercent,\n"
             getPendingFeeReturn += "\t\t\t_pending" + x.name + "FeePercent,\n"
-            proposeFeeDistroSet += "\t\t\t_pending"+x.name+"FeePercent = _"+x.name+"FeePercent;\n"           
+            proposeFeeDistroSet += "\t\t\t_pending"+x.name+"FeePercent = _"+x.name+"FeePercent;\n" 
+            transferWfeesCall += "\t\t\t_transfer(sender, 0x000000000000000000000000000000000000dEaD, to"+x.name+");\n"
+
+          
 
                
         else:
+            if contract.taxBurn:
+                calcFeeDistroBurn += ".sub(to"+x.name+")"
             calcFeeDistroCalc += "\t\tto"+x.name+" = amount.mul(_"+x.name+"WalletFeePercent).div(1e18);\n"
-            calcFeeDistroBurn += ".sub(to"+x.name+")"
             constructorOwnerAddressVariable += "\t\taddress "+x.name+"Wallet,\n"
             globalOwnerWalletAddressVariable += "\taddress public _"+ x.name +"Wallet;\n" 
             globalOwnerWalletPercentVariable += "\tuint256 public _"+ x.name+"WalletFeePercent;\n"
@@ -263,7 +283,7 @@ def addDistrbution(filedata,contract):
             getPendingFeeReturn += "\t\t\t_pending" + x.name + "WalletFeePercent,\n"
             proposeFeeDistroSet += "\t\t\t_pending"+x.name+"WalletFeePercent = _"+x.name+"WalletFeePercent;\n"           
             #add this for scam<scam>
-            setWalletAddressFunction += "\tfunction set"+x.name+"WalletAddress(address "+x.name+"Address) public onlyOwner {\n\trequire(\n\t\t"+x.name+"Address != address(0),\n\t\t\"<contract symbol>: "+x.name+"Address cannot be zero address\"\n\t);\n\t_"+x.name+"Wallet = "+x.name+"Address;\n}\n"
+            setWalletAddressFunction += "\tfunction set"+x.name+"WalletAddress(address "+x.name+"Address) public onlyOwner {\n\trequire(\n\t\t"+x.name+"Address != address(0),\n\t\t\""+contract.symbol+": "+x.name+"Address cannot be zero address\"\n\t);\n\t_"+x.name+"Wallet = "+x.name+"Address;\n}\n"
 
 
     constructorOwnerAddressVariable = constructorOwnerAddressVariable[:-2]
@@ -276,7 +296,10 @@ def addDistrbution(filedata,contract):
     proposeFeeDistroInput = proposeFeeDistroInput[:-2]
     transferWfeesCall = transferWfeesCall[:-1]
     proposeFeeDistroRequire = proposeFeeDistroRequire[:-1]
-    calcFeeDistroBurn += ";"
+    if contract.taxBurn:
+        calcFeeDistroBurn += ";"
+        constructorAddOwnerWhitelist += "\t\taddWhitelistAddress(0x000000000000000000000000000000000000dEaD);\n"
+
     
 
     filedata = filedata.replace('<globalOwnerWalletAddressVariable>', globalOwnerWalletAddressVariable)

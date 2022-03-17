@@ -67,7 +67,6 @@ contract <contract symbol> is ERC20, Ownable {
 
         //add <contract symbol> wallets to whitelistAddresses
         addWhitelistAddress(_msgSender());
-        addWhitelistAddress(0x000000000000000000000000000000000000dEaD);
 <constructorAddOwnerWhitelist>
     }
 
@@ -98,7 +97,7 @@ contract <contract symbol> is ERC20, Ownable {
         uint256 currentAllowance = allowance(sender, _msgSender());
         require(
             currentAllowance >= amount,
-            "ERC20: transfer amount exceeds allowance"
+            "<type>: transfer amount exceeds allowance"
         );
         unchecked {_approve(sender, _msgSender(), currentAllowance - amount);}
 
@@ -124,7 +123,6 @@ contract <contract symbol> is ERC20, Ownable {
 <transferWfeesOwnerAmountVariable>
             ) = calculateFeeDistribution(feeToCharge);
 
-            _transfer(sender, 0x000000000000000000000000000000000000dEaD, toBurn);
 <transferWfeesCall>
             _transfer(sender, recipient, amountAfterFee);
     }
@@ -216,8 +214,8 @@ contract <contract symbol> is ERC20, Ownable {
 
     function proposeTransactionFee(uint256 fee) public onlyOwner {
         require(
-            fee >= 0 && fee <= 99e16,
-            "<contract symbol>: transaction fee should be >= 0 and <= 99%"
+            fee >= 0 && fee <= <maxTax>e16,
+            "<contract symbol>: transaction fee should be >= 0 and <= <maxTax>%"
         );
         require(
             !hasPendingFee[Functions.FEE],
@@ -237,8 +235,8 @@ contract <contract symbol> is ERC20, Ownable {
 
     function proposeTransactionFeeOwner(uint256 fee) public onlyOwner {
         require(
-            fee >= 0 && fee <= 99e16,
-            "<contract symbol>: sell transaction fee should be >= 0 and <= 99%"
+            fee >= 0 && fee <= <maxTax>e16,
+            "<contract symbol>: sell transaction fee should be >= 0 and <= <maxTax>%"
         );
         require(
             !hasPendingFee[Functions.FEE_OWNER],
