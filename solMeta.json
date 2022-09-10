@@ -1,8 +1,8 @@
 {
 "type": 1,
-"name":"a", 
-"symbol":"a", 
-"supply": 100000000,
+"name":"Pizza", 
+"symbol":"PZA", 
+"supply": 1000,
 "advanced": true,
 "tax": true,
 "user_tax": 15,
@@ -11,22 +11,22 @@
 "distribution": [
     {
         "name":"Development",
-        "percent":35,
+        "percent":25,
         "address":"<Wallet Address>"
     },
     {
         "name":"Marketing",
-        "percent":35,
+        "percent":25,
         "address":"<Wallet Address>"
     },
     {
         "name":"Rewards",
-        "percent":24,
+        "percent":25,
         "address":"<Wallet Address>"
     },
     {
         "name":"Liquidity",
-        "percent":6,
+        "percent":25,
         "address":"<Wallet Address>"
     }
 ],
